@@ -5,6 +5,8 @@
 ## Author: MeioNeiz
 ## X-Website: https://github.com/MeioNeiz/MeioTooltipFold
 ## X-License: MIT
+## X-Curse-Project-ID: 1829281
+## X-Wago-ID: qGZAdaKd
 ## Category: Meio
 ## IconTexture: Interface\Icons\INV_Misc_Note_02
 ## AddonCompartmentFunc: MeioTooltipFold_OpenSettings

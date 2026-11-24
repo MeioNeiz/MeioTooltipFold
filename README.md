@@ -1,55 +1,46 @@
-# TooltipFold
+# Meio Tooltip Fold
 
-Tidies item tooltips in **WoW Forever**: lines that other addons add at the bottom are folded
-into Blizzard's own lines, so tooltips stay short and read as one.
+Short item tooltips: the lines other addons pile at the bottom move into Blizzard's own.
 
-| Pawn: before | Pawn: after |
-|---|---|
-| ![Pawn before](docs/pawn-before.png) | ![Pawn after](docs/pawn-after.png) |
-| **RestedXP: before** | **RestedXP: after** (guide for level 50, you're 30) |
-| ![RestedXP before](docs/guide-before.png) | ![RestedXP after](docs/guide-after.png) |
+![A cloak's tooltip: before, Pawn's upgrade, four RestedXP guide lines and Meionomics' price
+at the bottom; with TooltipFold, the upgrade beside the armour, the price under Sell Price and
+the guides in one line](docs/before-after.png)
 
 ## What it does
 
-- **Pawn**: the upgrade percentage moves up beside the weapon's DPS, the armour value or the
-  last stat line, and Pawn's own scale line is hidden. Hold **Shift** to see the scale and
-  score again.
-- **RestedXP Guides**: the "Item used in guide" lines become one line, with each guide named
-  once, and only guides that start within 5 levels of yours. Hold **Shift** for all of them.
-- **Meionomics**: its sale verdict moves up right under Sell Price when other addons' lines
-  land in between.
+Each addon's lines go where they belong, and only when that addon is installed.
 
-Each fold only acts when that addon's lines are on the tooltip; without the addon it does
-nothing.
+- **Pawn**: the upgrade percentage sits beside the weapon's damage, the armour or the last
+  stat; its scale line hides
+- **RestedXP Guides**: "Item used in guide" becomes one line, each guide named once, only
+  guides that start near your level
+- **Meionomics**: its price sits right under Sell Price
+- Hold **Shift** to see everything as the addons wrote it
 
-## Commands
+Settings: Esc > Options > AddOns > TooltipFold, or `/tooltipfold`.
 
-| Command | |
-|---|---|
-| `/tooltipfold` | Settings and the list of commands |
-| `/tooltipfold pawn on`, `/tooltipfold pawn off` | Fold Pawn's lines or leave them |
-| `/tooltipfold rxp on`, `/tooltipfold rxp off` | The same for RestedXP's guide lines |
-| `/tooltipfold meio on`, `/tooltipfold meio off` | The same for Meionomics' verdict |
-| `/tooltipfold near <levels>` | How far above your level a guide may start (default 5) |
-| `/tooltipfold reset` | Back to the defaults |
+## Slash commands
+
+- `/tooltipfold`: settings
+- `/tooltipfold help`: every command
+- `/tooltipfold pawn on`, `rxp on`, `meio on` (or `off`): fold that addon's lines or leave them
+- `/tooltipfold bis on|off`: Forever Leveling BiS's verdict as one line (needs a Leveling BiS
+  version that lets other addons take over its block; the current one doesn't yet)
+- `/tooltipfold near <levels>`: how far above your level a guide may start (default 5)
+- `/tooltipfold reset`: back to the defaults
 
 ## Install
 
-Download this repository (green **Code** button, **Download ZIP**), and copy the
-`addons\TooltipFold` folder into `World of Warcraft\_forever_\Interface\AddOns`, so that you
-end up with `AddOns\TooltipFold\TooltipFold.toc`. Restart WoW fully (a `/reload` doesn't
-find new addons).
+Use your addon manager (CurseForge, Wago), or unzip a GitHub release into
+`World of Warcraft\_forever_\Interface\AddOns` and restart WoW fully.
 
-Works with any of these, all optional:
-PawnForever (WoW Forever's build of [Pawn](https://www.curseforge.com/wow/addons/pawn)),
-[RestedXP Guides](https://www.restedxp.com) and
-[Meionomics](https://github.com/MeioNeiz/Meionomics).
+## Feedback
 
-## Limits
+Bugs and ideas: [GitHub issues](https://github.com/MeioNeiz/TooltipFold/issues)
 
-- It recognises those addons by the text and colours they write. An update that changes
-  them makes the fold step aside (the original lines stay) until TooltipFold is updated.
-- Made and tested on an English client.
+## More Meio addons
+
+[Meio TrainerCompare](https://www.curseforge.com/wow/addons/trainercompare) | [Meio Next Stop](https://www.curseforge.com/wow/addons/leavebutton) | [Meio AutoRank](https://www.curseforge.com/wow/addons/meio-autorank) | [Meio MeterHover](https://www.curseforge.com/wow/addons/meterhover) | [Meio Map](https://addons.wago.io/addons/meiomap) | [Meio Alts](https://addons.wago.io/addons/meioalts) | [Meio DPS](https://addons.wago.io/addons/meiodps) | [Meio Plates](https://addons.wago.io/addons/meioplates) | [Meio Hub](https://addons.wago.io/addons/meiohub) | [Meio Pets](https://addons.wago.io/addons/meiopets) | [Meio Stats](https://addons.wago.io/addons/meiostats) | [Meio Bags](https://addons.wago.io/addons/meiobags) | [Meio Fixes](https://addons.wago.io/addons/meiofixes) | [Meio Flight Times](https://addons.wago.io/addons/meioflighttimes)
 
 ## Licence
 

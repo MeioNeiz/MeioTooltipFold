@@ -1,0 +1,21 @@
+{
+  "title": "Meio Tooltip Fold",
+  "summary": "Folds the lines other addons pile at the bottom of item tooltips into Blizzard's own, so tooltips stay short.",
+  "cfCategory": "Tooltip",
+  "cfExtra": [],
+  "wagoCategories": [
+    "Tooltip"
+  ],
+  "gallery": [
+    {
+      "file": "before-after.png",
+      "title": "Before and after",
+      "description": "A cloak's tooltip: Pawn, RestedXP and Meionomics lines piled at the bottom, then folded into the tooltip"
+    },
+    {
+      "file": "shift.png",
+      "title": "Hold Shift",
+      "description": "Shift brings back Pawn's scale, every guide and Meionomics' full price detail"
+    }
+  ]
+}

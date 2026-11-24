@@ -1,0 +1,8 @@
+package-as: TooltipFold
+
+move-folders:
+  TooltipFold/addons/TooltipFold: TooltipFold
+
+ignore:
+  - docs
+  - README.md

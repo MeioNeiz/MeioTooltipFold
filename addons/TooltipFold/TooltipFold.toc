@@ -1,0 +1,11 @@
+## Interface: 16001
+## Title: TooltipFold
+## Notes: Folds other addons' tooltip lines into Blizzard's own: Pawn's upgrade beside the stats, RestedXP's guide lines merged and only for guides near your level, Meionomics' verdict under Sell Price. Shift shows the detail. /tooltipfold
+## Version: 1.0.0
+## Author: MeioNeiz
+## X-Website: https://github.com/MeioNeiz/TooltipFold
+## X-License: MIT
+## OptionalDeps: PawnForever, Pawn, RXPGuides, Meionomics
+## SavedVariables: TooltipFoldDB
+
+TooltipFold.lua

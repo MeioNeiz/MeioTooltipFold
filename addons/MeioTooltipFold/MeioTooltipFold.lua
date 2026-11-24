@@ -1,4 +1,4 @@
--- TooltipFold: folds other addons' tooltip lines into Blizzard's own.
+-- MeioTooltipFold: folds other addons' tooltip lines into Blizzard's own.
 --   Pawn: the upgrade % moves beside the stat line, the scale line hides (Shift shows it)
 --   RestedXP: "Item used in guide" lines merge into one, deduped, near your level only
 --   Meionomics: its verdict rows move up under Sell Price
@@ -447,8 +447,8 @@ local function Install()
   BlockOff()
 end
 ------------------------------------------------------------------------------ settings
--- Chat toggles and the Settings panel (Esc > Options > AddOns > TooltipFold) share these
--- words and both write TooltipFoldDB
+-- Chat toggles and the Settings panel (Esc > Options > AddOns > MeioTooltipFold) share these
+-- words and both write MeioTooltipFoldDB
 local FOLDS = {
   { key = "pawn", label = "Pawn on stat line",
     tip = "Pawn's upgrade % goes on the right of the damage, armour or last stat line and its"
@@ -468,7 +468,7 @@ local NEAR_LABEL = "RestedXP range"
 local NEAR_MAX = 20
 
 local function Print(msg)
-  DEFAULT_CHAT_FRAME:AddMessage("|cffb090ffTooltipFold:|r " .. msg)
+  DEFAULT_CHAT_FRAME:AddMessage("|cffb090ffMeioTooltipFold:|r " .. msg)
 end
 
 local function OnOff(on)
@@ -489,7 +489,7 @@ local function Help()
   add:AddMessage(("  %s - %s: guides up to n levels above you (now %d)"):format(
     Cmd("/tooltipfold near <n>"), NEAR_LABEL, db.near))
   add:AddMessage(("  %s - default settings"):format(Cmd("/tooltipfold reset")))
-  add:AddMessage(("  Settings: Esc > Options > AddOns > TooltipFold (%s)")
+  add:AddMessage(("  Settings: Esc > Options > AddOns > MeioTooltipFold (%s)")
     :format(Cmd("/tooltipfold settings")))
 end
 
@@ -498,7 +498,7 @@ local category
 local function Register()
   if category or not (Settings and Settings.RegisterVerticalLayoutCategory) then return end
   local layout
-  category, layout = Settings.RegisterVerticalLayoutCategory("TooltipFold")
+  category, layout = Settings.RegisterVerticalLayoutCategory("MeioTooltipFold")
   if layout and CreateSettingsListSectionHeaderInitializer then
     layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Item tooltips",
       "Which addons' lines are folded into Blizzard's own. Hold Shift on a tooltip for the"
@@ -533,13 +533,13 @@ local function OpenSettings()
     Help()
   end
 end
-TooltipFold_OpenSettings = OpenSettings
+MeioTooltipFold_OpenSettings = OpenSettings
 
 local BY_KEY = {}
 for _, f in ipairs(FOLDS) do BY_KEY[f.key] = f end
 
-SLASH_TOOLTIPFOLD1 = "/tooltipfold"
-SlashCmdList.TOOLTIPFOLD = function(msg)
+SLASH_MEIOTOOLTIPFOLD1 = "/tooltipfold"
+SlashCmdList.MEIOTOOLTIPFOLD = function(msg)
   local key, arg = strtrim(msg or ""):lower():match("^(%S*)%s*(.-)$")
   local f = BY_KEY[key]
   if key == "" or key == "settings" or key == "options" then
@@ -565,8 +565,8 @@ SlashCmdList.TOOLTIPFOLD = function(msg)
 end
 
 local function Load()
-  TooltipFoldDB = type(TooltipFoldDB) == "table" and TooltipFoldDB or {}
-  db = TooltipFoldDB
+  MeioTooltipFoldDB = type(MeioTooltipFoldDB) == "table" and MeioTooltipFoldDB or {}
+  db = MeioTooltipFoldDB
   for k, v in pairs(DEFAULTS) do
     if db[k] == nil then db[k] = v end
   end
@@ -583,7 +583,7 @@ f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("PLAYER_LOGIN")
 f:SetScript("OnEvent", function(_, event, name)
   if event == "ADDON_LOADED" then
-    if name == "TooltipFold" then Load() end
+    if name == "MeioTooltipFold" then Load() end
   else
     Login()
   end

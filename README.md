@@ -3,7 +3,7 @@
 Short item tooltips: the lines other addons pile at the bottom move into Blizzard's own.
 
 ![A cloak's tooltip: before, Pawn's upgrade, four RestedXP guide lines and Meionomics' price
-at the bottom; with TooltipFold, the upgrade beside the armour, the price under Sell Price and
+at the bottom; with MeioTooltipFold, the upgrade beside the armour, the price under Sell Price and
 the guides in one line](docs/before-after.png)
 
 ## What it does
@@ -17,7 +17,7 @@ Each addon's lines go where they belong, and only when that addon is installed.
 - **Meionomics**: its price sits right under Sell Price
 - Hold **Shift** to see everything as the addons wrote it
 
-Settings: Esc > Options > AddOns > TooltipFold, or `/tooltipfold`.
+Settings: Esc > Options > AddOns > MeioTooltipFold, or `/tooltipfold`.
 
 ## Slash commands
 
@@ -36,7 +36,7 @@ Use your addon manager (CurseForge, Wago), or unzip a GitHub release into
 
 ## Feedback
 
-Bugs and ideas: [GitHub issues](https://github.com/MeioNeiz/TooltipFold/issues)
+Bugs and ideas: [GitHub issues](https://github.com/MeioNeiz/MeioTooltipFold/issues)
 
 ## More Meio addons
 

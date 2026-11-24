@@ -1,4 +1,4 @@
-# TooltipFold
+# MeioTooltipFold
 
 ## 1.2.0
 

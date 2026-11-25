@@ -1,6 +1,6 @@
 {
   "title": "Meio Tooltip Fold",
-  "summary": "Folds the lines other addons pile at the bottom of item tooltips into Blizzard's own, so tooltips stay short.",
+  "summary": "Shorter item tooltips: Pawn and RestedXP lines move into Blizzard's own.",
   "cfCategory": "Tooltip",
   "cfExtra": [],
   "wagoCategories": [

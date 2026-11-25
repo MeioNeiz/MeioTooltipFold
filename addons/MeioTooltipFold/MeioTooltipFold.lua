@@ -1,14 +1,17 @@
 -- MeioTooltipFold: folds other addons' tooltip lines into Blizzard's own.
 --   Pawn: the upgrade % moves beside the stat line, the scale line hides (Shift shows it)
+--   ForeverGear, GearQuest: their gain and rank join Pawn's beside the stat line
 --   RestedXP: "Item used in guide" lines merge into one, deduped, near your level only
 --   Meionomics: its verdict rows move up under Sell Price
 --   Leveling BiS: its verdict as a plain line in place of its own block (adds lines, so it is
 --     a post-call, not a fold)
+--   Hidden lines: any line containing a text you chose (/tooltipfold hide), Shift shows them
 -- Runs on every Show: Blizzard shows the tooltip after all TooltipDataProcessor post-calls,
 -- and Pawn shows it again after adding its trainer line. Each fold must be idempotent: once
 -- applied, the line it looks for no longer matches.
 
-local DEFAULTS = { pawn = true, rxp = true, meio = true, bis = true, near = 5 }
+local DEFAULTS = { pawn = true, fg = true, gq = true, rxp = true, meio = true, bis = true,
+  near = 5 }
 local db = DEFAULTS
 
 local TOOLTIPS = { "GameTooltip", "ItemRefTooltip", "ShoppingTooltip1", "ShoppingTooltip2" }
@@ -122,13 +125,30 @@ local function RightFree(right)
     and not (right:IsShown() and Readable(right:GetText()) and right:GetText() ~= "")
 end
 
+-- Each fold's verdict goes on the right of one line; later folds in the same pass join it,
+-- so Pawn, ForeverGear and GearQuest read as one line
+local placed
+local UpgradeTarget
+
+local function Place(tip, line, before, text)
+  local target = placed or UpgradeTarget(tip, line, before)
+  if not target then return false end
+  if target == placed then
+    target:SetText(target:GetText() .. "  " .. text)
+  else
+    SetRight(target, text, HIGHLIGHT_FONT_COLOR)
+  end
+  placed = target
+  return true
+end
+
 ------------------------------------------------------------------------------ Pawn
 -- PawnForever adds `|cff33ff99<scale>|r` | `<score>  |cff40ff40<gain>[ with <partner>]|r`
 local PAWN_LEFT = "^|cff33ff99(.-)|r$"
 
 -- Where the upgrade goes: the weapon's DPS line, the armour line, else the last stat line,
 -- else the name line
-local function UpgradeTarget(tip, line, before)
+function UpgradeTarget(tip, line, before)
   local last
   for i = 2, before - 1 do
     local left, right = line(i)
@@ -163,9 +183,67 @@ local function FoldPawn(tip, line, n)
       else
         Hide(left, right)
       end
-      if gain then
-        local target = UpgradeTarget(tip, line, i)
-        if target then SetRight(target, gain, GREEN_FONT_COLOR) end
+      if gain then Place(tip, line, i, GREEN_FONT_COLOR:WrapTextInColorCode(gain)) end
+      return true
+    end
+  end
+end
+
+------------------------------------------------------------------------------ ForeverGear
+-- `|cff66ccffUpgrade score <n>|r` then ` <colour>(<+-d> vs equipped)|r`, ` (equipped)`,
+-- ` |cffff4444(you can't use it)|r` or a grey tie. Only a gain or loss is worth a place.
+local FG_LEFT = "^|cff66ccffUpgrade score ([^|]+)|r ?(.*)$"
+local FG_GAIN = { ["33ff33"] = GREEN_FONT_COLOR, ["ff4444"] = RED_FONT_COLOR }
+
+local function FoldFG(tip, line, n)
+  if IsShiftKeyDown() then return end
+  for i = 2, n do
+    local left, right = line(i)
+    local text = left:GetText()
+    local score, trail
+    if Readable(text) then score, trail = text:match(FG_LEFT) end
+    if score then
+      local hex, d = trail:match("^|cff(%x+)%(([%+%-][%d%.]+) vs equipped%)|r$")
+      local color = hex and FG_GAIN[hex:lower()]
+      if color then
+        if not Place(tip, line, i, color:WrapTextInColorCode((d:gsub("%.0$", "")))) then
+          return
+        end
+      end
+      Hide(left, right)
+      return true
+    end
+  end
+end
+
+------------------------------------------------------------------------------ GearQuest
+-- A blank line, maybe its enchant lines, `|cffffd100Rank #<n> for your level[ <pair>]|r`
+-- then `  |cffffffff<index>|r[  <arrow> |cff00ff00+<d>|r]`, maybe a set note, then other
+-- specs' ranks; the note and ranks are `|cffd9bf73...|r` lines
+local GQ_LEFT = "^|cffffd100Rank #(%d+) for your level.-|r(.*)$"
+local GQ_AFTER = "^|cffd9bf73.*|r$"
+
+local function FoldGQ(tip, line, n)
+  if IsShiftKeyDown() then return end
+  for i = 2, n do
+    local left, right = line(i)
+    local text = left:GetText()
+    local rank, trail
+    if Readable(text) then rank, trail = text:match(GQ_LEFT) end
+    if rank then
+      local up, down = trail:match("|cff00ff00(%+%d+)|r"), trail:match("|cffff4040(%-%d+)|r")
+      local verdict = "|cffffd100#" .. rank .. "|r"
+      if up then verdict = verdict .. " " .. GREEN_FONT_COLOR:WrapTextInColorCode(up) end
+      if down then verdict = verdict .. " " .. RED_FONT_COLOR:WrapTextInColorCode(down) end
+      if not Place(tip, line, i, verdict) then return end
+      Hide(left, right)
+      local above = line(i - 1):GetText()
+      if Readable(above) and above == " " then Hide(line(i - 1)) end
+      for j = i + 1, n do
+        local l, r = line(j)
+        local t = l:GetText()
+        if not (Readable(t) and t:find(GQ_AFTER)) then break end
+        Hide(l, r)
       end
       return true
     end
@@ -347,7 +425,8 @@ local function AddBis(tip)
   if tip:IsForbidden() or OwnWindow(tip:GetOwner()) then return end
   local link = DisplayedLink(tip)
   if not link then return end
-  local main, offs = api.GetVerdicts(link)
+  local held = api.ShowsWorn and api.ShowsWorn(tip, link)
+  local main, offs = api.GetVerdicts(link, held)
   if not main or main.cant then return end
   local shift = IsShiftKeyDown()
   local standing = not main.reason and Standing(main)
@@ -401,6 +480,38 @@ local function BlockOff()
   if api and api.GetVerdicts then api.blockOff = db.bis end
 end
 
+------------------------------------------------------------------------------ hidden lines
+-- db.hide: lower-case texts; a line whose plain text (no colours, icons) contains one hides
+local function Bare(text)
+  if not Readable(text) then return nil end
+  local plain = text:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):gsub("|T.-|t", "")
+    :gsub("|A.-|a", ""):gsub("\n", " ")
+  return strtrim(plain)
+end
+
+local function Hidden(text)
+  local plain = Bare(text)
+  if not plain or plain == "" then return false end
+  plain = plain:lower()
+  for _, h in ipairs(db.hide) do
+    if plain:find(h, 1, true) then return true end
+  end
+  return false
+end
+
+local function HideChosen(tip, line, n)
+  if not db.hide or #db.hide == 0 or IsShiftKeyDown() then return end
+  local changed
+  for i = 2, n do
+    local left, right = line(i)
+    if Hidden(left:GetText()) or (right and right:IsShown() and Hidden(right:GetText())) then
+      Hide(left, right)
+      changed = true
+    end
+  end
+  return changed
+end
+
 ------------------------------------------------------------------------------ wiring
 local busy = false
 local emptied = setmetatable({}, { __mode = "k" })
@@ -409,9 +520,13 @@ local function Fold(tip)
   local n = tip:NumLines()
   if n < 2 then return end
   local line = Lines(tip)
+  placed = nil
   local changed = db.meio and FoldBest(tip, line, n)
   changed = db.pawn and FoldPawn(tip, line, n) or changed
+  changed = db.fg and FoldFG(tip, line, n) or changed
+  changed = db.gq and FoldGQ(tip, line, n) or changed
   changed = db.rxp and FoldRXP(tip, line, n) or changed
+  changed = HideChosen(tip, line, n) or changed
   if changed then emptied[tip] = true end
   -- lines added on a later Show (Meionomics' Shift ledger) land below the emptied ones
   local moved = emptied[tip] and Compact(line, n)
@@ -453,6 +568,14 @@ local FOLDS = {
   { key = "pawn", label = "Pawn on stat line",
     tip = "Pawn's upgrade % goes on the right of the damage, armour or last stat line and its"
       .. " scale line hides (Shift shows it). Off: Pawn's lines as Pawn adds them." },
+  { key = "fg", label = "ForeverGear gain",
+    tip = "ForeverGear's gain over what you wear joins the right of the damage, armour or last"
+      .. " stat line; its line hides, also when there is nothing to compare (Shift shows it)."
+      .. " Off: ForeverGear's own line." },
+  { key = "gq", label = "GearQuest rank",
+    tip = "GearQuest's rank for your level and its gain (\"#3 +12\") join the right of the"
+      .. " damage, armour or last stat line; its line, the gap above it and the other specs'"
+      .. " ranks hide (Shift shows them). Off: GearQuest's own lines." },
   { key = "rxp", label = "RestedXP merged",
     tip = "RestedXP's \"Item used in guide\" lines merge into one, repeats removed, only for"
       .. " guides near your level (Shift shows all). Off: RestedXP's own lines." },
@@ -488,9 +611,75 @@ local function Help()
   end
   add:AddMessage(("  %s - %s: guides up to n levels above you (now %d)"):format(
     Cmd("/tooltipfold near <n>"), NEAR_LABEL, db.near))
-  add:AddMessage(("  %s - default settings"):format(Cmd("/tooltipfold reset")))
+  add:AddMessage(("  %s - hide lines containing a text; alone, over an item: its lines to"
+    .. " pick from; %s shows one again; Shift shows them all"):format(
+    Cmd("/tooltipfold hide <text||n>"), Cmd("/tooltipfold unhide <n>")))
+  add:AddMessage(("  %s - default settings, nothing hidden"):format(Cmd("/tooltipfold reset")))
   add:AddMessage(("  Settings: Esc > Options > AddOns > MeioTooltipFold (%s)")
     :format(Cmd("/tooltipfold settings")))
+end
+
+-- the hovered tooltip's lines from the last /tooltipfold hide, for /tooltipfold hide <n>
+local listed = {}
+
+local function ListTooltip()
+  if not GameTooltip:IsShown() or GameTooltip:IsForbidden() then return false end
+  local line = Lines(GameTooltip)
+  wipe(listed)
+  for i = 2, GameTooltip:NumLines() do
+    local text = Bare(line(i):GetText())
+    if text and text ~= "" then listed[#listed + 1] = text end
+  end
+  if #listed == 0 then return false end
+  Print(("this tooltip's lines (%s hides one):"):format(Cmd("/tooltipfold hide <n>")))
+  for i, text in ipairs(listed) do DEFAULT_CHAT_FRAME:AddMessage(("  %d. %s"):format(i, text)) end
+  return true
+end
+
+local function ListHidden()
+  if #db.hide == 0 then
+    Print(("nothing hidden. Hover an item and type %s to pick a line."):format(
+      Cmd("/tooltipfold hide")))
+    return
+  end
+  Print("hiding lines that contain (Shift shows them):")
+  for i, text in ipairs(db.hide) do DEFAULT_CHAT_FRAME:AddMessage(("  %d. %s"):format(i, text)) end
+  DEFAULT_CHAT_FRAME:AddMessage(("  %s shows one again, %s all"):format(
+    Cmd("/tooltipfold unhide <n>"), Cmd("/tooltipfold unhide all")))
+end
+
+local function HideText(arg)
+  if arg == "" then
+    if not ListTooltip() then ListHidden() end
+    return
+  end
+  local text = strtrim((tonumber(arg) and listed[tonumber(arg)] or arg):lower())
+  if tContains(db.hide, text) then
+    Print(("already hiding \"%s\""):format(text))
+    return
+  end
+  table.insert(db.hide, text)
+  Print(("hiding lines that contain \"%s\" (Shift shows them; %s to undo)"):format(text,
+    Cmd("/tooltipfold unhide " .. #db.hide)))
+end
+
+local function Unhide(arg)
+  if arg == "all" then
+    wipe(db.hide)
+    Print("nothing hidden")
+    return
+  end
+  local i = tonumber(arg)
+  if not (i and db.hide[i]) then
+    for j, text in ipairs(db.hide) do
+      if text == arg then i = j end
+    end
+  end
+  if i and db.hide[i] then
+    Print(("showing lines with \"%s\" again"):format(table.remove(db.hide, i)))
+  else
+    ListHidden()
+  end
 end
 
 local category
@@ -523,6 +712,16 @@ local function Register()
   if rxp and slider and slider.SetParentInitializer then
     slider:SetParentInitializer(rxp, function() return db.rxp end)
   end
+  if layout and CreateSettingsListSectionHeaderInitializer then
+    layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Hidden lines",
+      "Hide any line you never read: hover an item, type /tooltipfold hide and pick its"
+        .. " number, or /tooltipfold hide <text> for every line containing that text. Shift"
+        .. " shows them."))
+  end
+  if layout and CreateSettingsButtonInitializer then
+    layout:AddInitializer(CreateSettingsButtonInitializer("Hidden lines", "List in chat",
+      ListHidden, "Every text hidden, with /tooltipfold unhide to show one again.", true))
+  end
   Settings.RegisterAddOnCategory(category)
 end
 
@@ -550,14 +749,19 @@ SlashCmdList.MEIOTOOLTIPFOLD = function(msg)
     if arg == "" then db[key] = not db[key] else db[key] = arg == "on" end
     BlockOff()
     Print(("%s %s"):format(f.label, OnOff(db[key])))
+  elseif key == "hide" then
+    HideText(arg)
+  elseif key == "unhide" then
+    Unhide(arg)
   elseif key == "near" and tonumber(arg) then
     db.near = math.min(NEAR_MAX, math.max(0, math.floor(tonumber(arg))))
     Print(("RestedXP guides up to %d levels above you"):format(db.near))
   elseif key == "reset" then
     wipe(db)
     for k, v in pairs(DEFAULTS) do db[k] = v end
+    db.hide = {}
     BlockOff()
-    Print("default settings")
+    Print("default settings, nothing hidden")
   else
     Print(("unknown command \"%s\""):format(strtrim(msg or "")))
     Help()
@@ -570,6 +774,7 @@ local function Load()
   for k, v in pairs(DEFAULTS) do
     if db[k] == nil then db[k] = v end
   end
+  if type(db.hide) ~= "table" then db.hide = {} end
 end
 
 local function Login()

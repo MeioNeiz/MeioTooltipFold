@@ -13,6 +13,11 @@
       "description": "A cloak's tooltip side by side: Pawn and RestedXP lines piled at the bottom, then folded in, four lines shorter"
     },
     {
+      "file": "gear.png",
+      "title": "ForeverGear and GearQuest",
+      "description": "Pawn's upgrade, ForeverGear's gain and GearQuest's rank together on the armour line"
+    },
+    {
       "file": "shift.png",
       "title": "Hold Shift",
       "description": "Shift brings back Pawn's scale, every guide and Meionomics' full price detail"

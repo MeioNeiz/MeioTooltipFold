@@ -16,25 +16,26 @@ Each addon's lines go where they belong, and only when that addon is installed.
   stat; its scale line hides
 - **RestedXP Guides**: "Item used in guide" becomes one line, each guide named once, only
   guides that start near your level
+- **ForeverGear** and **GearQuest**: the gain and the rank join Pawn's upgrade on the armour
+  (or damage) line; their own lines and GearQuest's other-spec ranks hide
 - **Meionomics**: its price sits right under Sell Price
-- Hold **Shift** to see everything as the addons wrote it
+- **Any line you never read**: hover an item, type `/tooltipfold hide` and pick its number,
+  or `/tooltipfold hide <text>`; it hides on every item
+- Hold **Shift** to see the hidden lines again
+
+![Sporid Cape tooltip: Pawn's +12%, ForeverGear's +20 and GearQuest's #3 +12 on the right
+of the armour line](docs/gear.png)
 
 Settings: Esc > Options > AddOns > MeioTooltipFold, or `/tooltipfold`.
-
-## Coming soon
-
-- ForeverGear's gain and GearQuest's rank folded onto the armour line beside Pawn's, one
-  line instead of three
-- Hide any addon line you never read
-
-![Coming soon: Sporid Cape tooltip: +12% +20 #3 +12 on the right of the armour
-line](docs/soon.png)
 
 ## Slash commands
 
 - `/tooltipfold`: settings
 - `/tooltipfold help`: every command
-- `/tooltipfold pawn on`, `rxp on`, `meio on` (or `off`): fold that addon's lines or leave them
+- `/tooltipfold pawn on`, `fg on`, `gq on`, `rxp on`, `meio on` (or `off`): fold that
+  addon's lines or leave them
+- `/tooltipfold hide`: over an item, its lines numbered; `hide <n>` or `hide <text>` hides
+  them; `/tooltipfold unhide <n|text|all>` shows them again
 - `/tooltipfold bis on|off`: Forever Leveling BiS's verdict as one line (needs a Leveling BiS
   version that lets other addons take over its block; the current one doesn't yet)
 - `/tooltipfold near <levels>`: how far above your level a guide may start (default 5)

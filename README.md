@@ -4,9 +4,9 @@ Short item tooltips: the lines other addons pile at the bottom move into Blizzar
 
 For WoW Forever.
 
-![A cloak's tooltip: before, Pawn's upgrade, four RestedXP guide lines and Meionomics' price
-at the bottom; with MeioTooltipFold, the upgrade beside the armour, the price under Sell Price and
-the guides in one line](docs/before-after.png)
+![A cloak's tooltip side by side: before, Pawn's upgrade line and RestedXP's guide header
+with four guide lines at the bottom; with MeioTooltipFold, four lines shorter, the upgrade
+beside the armour and the guides in one line](docs/before-after.png)
 
 ## What it does
 

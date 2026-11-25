@@ -21,6 +21,15 @@ Each addon's lines go where they belong, and only when that addon is installed.
 
 Settings: Esc > Options > AddOns > MeioTooltipFold, or `/tooltipfold`.
 
+## Coming soon
+
+- ForeverGear's gain and GearQuest's rank folded onto the armour line beside Pawn's, one
+  line instead of three
+- Hide any addon line you never read
+
+![Coming soon: Sporid Cape tooltip: +12% +20 #3 +12 on the right of the armour
+line](docs/soon.png)
+
 ## Slash commands
 
 - `/tooltipfold`: settings

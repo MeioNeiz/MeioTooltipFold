@@ -1,7 +1,7 @@
 ## Interface: 16001
 ## Title: MeioTooltipFold
 ## Notes: Folds Pawn, ForeverGear, GearQuest, RestedXP, Meionomics and Leveling BiS tooltip lines into Blizzard's own. Shift shows the detail. /tooltipfold
-## Version: 1.3.0
+## Version: 1.4.0
 ## Author: MeioNeiz
 ## X-Website: https://github.com/MeioNeiz/MeioTooltipFold
 ## X-License: MIT

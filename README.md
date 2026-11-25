@@ -4,27 +4,26 @@ Short item tooltips: the lines other addons pile at the bottom move into Blizzar
 
 For WoW Forever.
 
-![A cloak's tooltip side by side: before, Pawn's upgrade line and RestedXP's guide header
-with four guide lines at the bottom; with MeioTooltipFold, four lines shorter, the upgrade
-beside the armour and the guides in one line](docs/before-after.png)
+![A cloak's tooltip side by side: before, Pawn's line and RestedXP's guide header with four
+guide lines at the bottom; with MeioTooltipFold, four lines shorter, Pawn's score and upgrade
+beside the armour and the three guides in two lines](docs/before-after.png)
 
 ## What it does
 
 Each addon's lines go where they belong, and only when that addon is installed.
 
-- **Pawn**: the upgrade percentage sits beside the weapon's damage, the armour or the last
-  stat; its scale line hides
-- **RestedXP Guides**: "Item used in guide" becomes one line, each guide named once, only
-  guides that start near your level
-- **ForeverGear** and **GearQuest**: the gain and the rank join Pawn's upgrade on the armour
+- **Pawn**: the item's score and upgrade percentage sit beside the weapon's damage, the
+  armour or the last stat; its scale line hides
+- **RestedXP Guides**: "Item used in guide" becomes one line, every guide named once
+- **ForeverGear** and **GearQuest**: their score, gain and rank join Pawn's on the armour
   (or damage) line; their own lines and GearQuest's other-spec ranks hide
 - **Meionomics**: its price sits right under Sell Price
 - **Any line you never read**: hover an item, type `/tooltipfold hide` and pick its number,
   or `/tooltipfold hide <text>`; it hides on every item
-- Hold **Shift** to see the hidden lines again
+- Hold **Shift** to see the addons' own lines again
 
-![Sporid Cape tooltip: Pawn's +12%, ForeverGear's +20 and GearQuest's #3 +12 on the right
-of the armour line](docs/gear.png)
+![Sporid Cape tooltip: Pawn's 123.4 +12%, ForeverGear's 92 +20 and GearQuest's #3 72 +12
+on the right of the armour line](docs/gear.png)
 
 Settings: Esc > Options > AddOns > MeioTooltipFold, or `/tooltipfold`.
 
@@ -36,9 +35,9 @@ Settings: Esc > Options > AddOns > MeioTooltipFold, or `/tooltipfold`.
   addon's lines or leave them
 - `/tooltipfold hide`: over an item, its lines numbered; `hide <n>` or `hide <text>` hides
   them; `/tooltipfold unhide <n|text|all>` shows them again
-- `/tooltipfold bis on|off`: Forever Leveling BiS's verdict as one line (needs a Leveling BiS
-  version that lets other addons take over its block; the current one doesn't yet)
-- `/tooltipfold near <levels>`: how far above your level a guide may start (default 5)
+- `/tooltipfold bis on|off`: Forever Leveling BiS's verdict and score as one line (needs a
+  Leveling BiS version that lets other addons take over its block; the current one doesn't
+  yet)
 - `/tooltipfold reset`: back to the defaults
 
 ## Install

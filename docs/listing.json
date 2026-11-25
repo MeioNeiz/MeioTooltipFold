@@ -15,12 +15,12 @@
     {
       "file": "shift.png",
       "title": "Hold Shift",
-      "description": "Shift brings back Pawn's scale, every guide and Meionomics' full price detail"
+      "description": "Shift brings back Pawn's and RestedXP's own lines and Meionomics' full price detail"
     },
     {
       "file": "gear.png",
       "title": "ForeverGear and GearQuest",
-      "description": "Pawn's upgrade, ForeverGear's gain and GearQuest's rank together on the armour line"
+      "description": "Pawn's score and upgrade, ForeverGear's score and gain and GearQuest's rank together on the armour line"
     }
   ]
 }

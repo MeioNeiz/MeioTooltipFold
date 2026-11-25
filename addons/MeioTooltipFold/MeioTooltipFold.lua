@@ -1,7 +1,8 @@
 -- MeioTooltipFold: folds other addons' tooltip lines into Blizzard's own.
---   Pawn: the upgrade % moves beside the stat line, the scale line hides (Shift shows it)
---   ForeverGear, GearQuest: their gain and rank join Pawn's beside the stat line
---   RestedXP: "Item used in guide" lines merge into one, deduped, near your level only
+--   Pawn: its score and upgrade % move beside the stat line, the scale line hides (Shift
+--     shows it)
+--   ForeverGear, GearQuest: their score, gain and rank join Pawn's beside the stat line
+--   RestedXP: "Item used in guide" lines merge into as few as fit, each guide once
 --   Meionomics: its verdict rows move up under Sell Price
 --   Leveling BiS: its verdict as a plain line in place of its own block (adds lines, so it is
 --     a post-call, not a fold)
@@ -10,8 +11,7 @@
 -- and Pawn shows it again after adding its trainer line. Each fold must be idempotent: once
 -- applied, the line it looks for no longer matches.
 
-local DEFAULTS = { pawn = true, fg = true, gq = true, rxp = true, meio = true, bis = true,
-  near = 5 }
+local DEFAULTS = { pawn = true, fg = true, gq = true, rxp = true, meio = true, bis = true }
 local db = DEFAULTS
 
 local TOOLTIPS = { "GameTooltip", "ItemRefTooltip", "ShoppingTooltip1", "ShoppingTooltip2" }
@@ -126,15 +126,17 @@ local function RightFree(right)
 end
 
 -- Each fold's verdict goes on the right of one line; later folds in the same pass join it,
--- so Pawn, ForeverGear and GearQuest read as one line
+-- so Pawn, ForeverGear and GearQuest read as one line, a grey bar between them
 local placed
 local UpgradeTarget
+local JOIN = "  |cff808080|||r  "
+local WHITE_TEXT = "|cffffffff%s|r"
 
 local function Place(tip, line, before, text)
   local target = placed or UpgradeTarget(tip, line, before)
   if not target then return false end
   if target == placed then
-    target:SetText(target:GetText() .. "  " .. text)
+    target:SetText(target:GetText() .. JOIN .. text)
   else
     SetRight(target, text, HIGHLIGHT_FONT_COLOR)
   end
@@ -164,6 +166,7 @@ function UpgradeTarget(tip, line, before)
 end
 
 local function FoldPawn(tip, line, n)
+  if IsShiftKeyDown() then return end
   for i = 2, n do
     local left, right = line(i)
     local scale = Readable(left:GetText()) and left:GetText():match(PAWN_LEFT)
@@ -171,19 +174,13 @@ local function FoldPawn(tip, line, n)
     if value then
       local score = value:match("^(%S+)")
       local gain = value:match("|cff40ff40(.-)|r")
-      local partner
+      if gain then gain = gain:match("^(.-) with .+$") or gain end
+      Hide(left, right)
+      local verdict = WHITE_TEXT:format(score)
       if gain then
-        gain, partner = gain:match("^(.-) with (.+)$") or gain, gain:match(" with (.+)$")
+        verdict = verdict .. " " .. GREEN_FONT_COLOR:WrapTextInColorCode(gain)
       end
-      if IsShiftKeyDown() then
-        left:SetText(scale)
-        left:SetTextColor(1, 1, 1)
-        right:SetText(partner and ("%s (with %s)"):format(score, partner) or score)
-        right:SetTextColor(1, 1, 1)
-      else
-        Hide(left, right)
-      end
-      if gain then Place(tip, line, i, GREEN_FONT_COLOR:WrapTextInColorCode(gain)) end
+      Place(tip, line, i, verdict)
       return true
     end
   end
@@ -191,7 +188,7 @@ end
 
 ------------------------------------------------------------------------------ ForeverGear
 -- `|cff66ccffUpgrade score <n>|r` then ` <colour>(<+-d> vs equipped)|r`, ` (equipped)`,
--- ` |cffff4444(you can't use it)|r` or a grey tie. Only a gain or loss is worth a place.
+-- ` |cffff4444(you can't use it)|r` or a grey tie. An item you can't use gets no place.
 local FG_LEFT = "^|cff66ccffUpgrade score ([^|]+)|r ?(.*)$"
 local FG_GAIN = { ["33ff33"] = GREEN_FONT_COLOR, ["ff4444"] = RED_FONT_COLOR }
 
@@ -203,12 +200,14 @@ local function FoldFG(tip, line, n)
     local score, trail
     if Readable(text) then score, trail = text:match(FG_LEFT) end
     if score then
-      local hex, d = trail:match("^|cff(%x+)%(([%+%-][%d%.]+) vs equipped%)|r$")
-      local color = hex and FG_GAIN[hex:lower()]
-      if color then
-        if not Place(tip, line, i, color:WrapTextInColorCode((d:gsub("%.0$", "")))) then
-          return
+      if not trail:find("can't use", 1, true) then
+        local hex, d = trail:match("^|cff(%x+)%(([%+%-][%d%.]+) vs equipped%)|r$")
+        local color = hex and FG_GAIN[hex:lower()]
+        local verdict = WHITE_TEXT:format(score)
+        if color then
+          verdict = verdict .. " " .. color:WrapTextInColorCode((d:gsub("%.0$", "")))
         end
+        if not Place(tip, line, i, verdict) then return end
       end
       Hide(left, right)
       return true
@@ -232,7 +231,9 @@ local function FoldGQ(tip, line, n)
     if Readable(text) then rank, trail = text:match(GQ_LEFT) end
     if rank then
       local up, down = trail:match("|cff00ff00(%+%d+)|r"), trail:match("|cffff4040(%-%d+)|r")
+      local index = trail:match("|cffffffff([%d%.]+)|r")
       local verdict = "|cffffd100#" .. rank .. "|r"
+      if index then verdict = verdict .. " " .. WHITE_TEXT:format(index) end
       if up then verdict = verdict .. " " .. GREEN_FONT_COLOR:WrapTextInColorCode(up) end
       if down then verdict = verdict .. " " .. RED_FONT_COLOR:WrapTextInColorCode(down) end
       if not Place(tip, line, i, verdict) then return end
@@ -255,8 +256,12 @@ end
 -- repeats when one guide has two turn-in steps for the item
 local RXP_PREFIX = "Item used in guide:\n"
 local RXP_ICON = "|TInterface/GossipFrame/ActiveQuestIcon:0|t"
+local RXP_LEAD = "Used in guide: "
+-- guides join a row up to this many characters, so many guides don't widen the tooltip
+local RXP_ROW = 46
 
 local function FoldRXP(tip, line, n)
+  if IsShiftKeyDown() then return end
   for i = 2, n do
     local first = line(i)
     local text = first:GetText()
@@ -267,20 +272,28 @@ local function FoldRXP(tip, line, n)
         if not (Readable(t) and t:sub(1, #RXP_ICON) == RXP_ICON) then break end
         rows[#rows + 1] = j
       end
-      local kept, seen = {}, {}
-      local maxLevel = UnitLevel("player") + db.near
+      local out, seen = { RXP_LEAD }, {}
       for _, j in ipairs(rows) do
         local guide = line(j):GetText():gsub("^" .. RXP_PREFIX:gsub("\n", "%%c"), "")
           :gsub("^|T.-|t", "")
-        local from = tonumber(guide:match("^(%d+)"))
-        if not seen[guide] and (IsShiftKeyDown() or not from or from <= maxLevel) then
+        if not seen[guide] then
           seen[guide] = true
-          kept[#kept + 1] = guide
+          local row = out[#out]
+          if row == RXP_LEAD then
+            out[#out] = row .. guide
+          elseif #row + 2 + #guide <= RXP_ROW then
+            out[#out] = row .. ", " .. guide
+          else
+            out[#out] = row .. ","
+            out[#out + 1] = guide
+          end
         end
       end
       for _, j in ipairs(rows) do Hide(line(j)) end
-      if #kept > 0 then
-        first:SetText(RXP_ICON .. " Used in guide: " .. table.concat(kept, ", "))
+      for k, row in ipairs(out) do
+        if row ~= RXP_LEAD then
+          line(rows[k]):SetText((k == 1 and RXP_ICON .. " " or "") .. row)
+        end
       end
       return true
     end
@@ -432,13 +445,15 @@ local function AddBis(tip)
   local standing = not main.reason and Standing(main)
   -- losses show without Shift too: a loot roll needs no for an answer as much as yes
   local gain = not main.reason and not main.worn and Gain(main, true)
-  if standing or gain or shift then
+  local verdict = not main.reason and main.score and Score(main)
+  if gain then verdict = verdict and (verdict .. "  " .. gain) or gain end
+  if standing or verdict or shift then
     local left = BIS_ICON .. (standing or C(WHITE, "Leveling BiS"))
-    if gain then tip:AddDoubleLine(left, gain) else tip:AddLine(left) end
+    if verdict then tip:AddDoubleLine(left, verdict) else tip:AddLine(left) end
   end
   if not shift then
     -- one hint per tooltip across our addons (meioShiftHint, cleared with the tooltip)
-    if (standing or gain) and not tip.meioShiftHint then
+    if (standing or verdict) and not tip.meioShiftHint then
       tip.meioShiftHint = true
       tip:AddLine("|cff999999Shift: more|r")
     end
@@ -566,29 +581,26 @@ end
 -- words and both write MeioTooltipFoldDB
 local FOLDS = {
   { key = "pawn", label = "Pawn on stat line",
-    tip = "Pawn's upgrade % goes on the right of the damage, armour or last stat line and its"
-      .. " scale line hides (Shift shows it). Off: Pawn's lines as Pawn adds them." },
+    tip = "Pawn's score and upgrade % go on the right of the damage, armour or last stat line"
+      .. " and its scale line hides (Shift shows it). Off: Pawn's lines as Pawn adds them." },
   { key = "fg", label = "ForeverGear gain",
-    tip = "ForeverGear's gain over what you wear joins the right of the damage, armour or last"
-      .. " stat line; its line hides, also when there is nothing to compare (Shift shows it)."
-      .. " Off: ForeverGear's own line." },
+    tip = "ForeverGear's score and gain over what you wear join the right of the damage, armour"
+      .. " or last stat line; its line hides (Shift shows it). Off: ForeverGear's own line." },
   { key = "gq", label = "GearQuest rank",
-    tip = "GearQuest's rank for your level and its gain (\"#3 +12\") join the right of the"
+    tip = "GearQuest's rank for your level, score and gain (\"#3 72 +12\") join the right of the"
       .. " damage, armour or last stat line; its line, the gap above it and the other specs'"
       .. " ranks hide (Shift shows them). Off: GearQuest's own lines." },
   { key = "rxp", label = "RestedXP merged",
-    tip = "RestedXP's \"Item used in guide\" lines merge into one, repeats removed, only for"
-      .. " guides near your level (Shift shows all). Off: RestedXP's own lines." },
+    tip = "RestedXP's \"Item used in guide\" lines merge into one (two when there are many),"
+      .. " every guide named once (Shift shows RestedXP's own lines). Off: their own lines." },
   { key = "meio", label = "Meionomics up",
     tip = "Meionomics' price lines move up to just under Sell Price when another addon's lines"
       .. " landed between them. Off: they stay where they were added." },
   { key = "bis", label = "BiS as one line",
-    tip = "Forever Leveling BiS's verdict as one plain line (standing, and the upgrade or"
-      .. " downgrade) in place of its boxed block. Shift adds each spec's score and what it"
+    tip = "Forever Leveling BiS's verdict as one plain line (standing, score, and the upgrade"
+      .. " or downgrade) in place of its boxed block. Shift adds each spec's score and what it"
       .. " replaces. Off: its own block." },
 }
-local NEAR_LABEL = "RestedXP range"
-local NEAR_MAX = 20
 
 local function Print(msg)
   DEFAULT_CHAT_FRAME:AddMessage("|cffb090ffMeioTooltipFold:|r " .. msg)
@@ -609,8 +621,6 @@ local function Help()
     add:AddMessage(("  %s - %s (now %s)"):format(Cmd("/tooltipfold " .. f.key .. " on||off"),
       f.label, OnOff(db[f.key])))
   end
-  add:AddMessage(("  %s - %s: guides up to n levels above you (now %d)"):format(
-    Cmd("/tooltipfold near <n>"), NEAR_LABEL, db.near))
   add:AddMessage(("  %s - hide lines containing a text; alone, over an item: its lines to"
     .. " pick from; %s shows one again; Shift shows them all"):format(
     Cmd("/tooltipfold hide <text||n>"), Cmd("/tooltipfold unhide <n>")))
@@ -693,24 +703,11 @@ local function Register()
       "Which addons' lines are folded into Blizzard's own. Hold Shift on a tooltip for the"
         .. " detail."))
   end
-  local rxp
   for _, f in ipairs(FOLDS) do
     local setting = Settings.RegisterAddOnSetting(category, "TOOLTIPFOLD_" .. f.key:upper(),
       f.key, db, Settings.VarType.Boolean, f.label, DEFAULTS[f.key])
     if f.key == "bis" then setting:SetValueChangedCallback(BlockOff) end
-    local init = Settings.CreateCheckbox(category, setting, f.tip)
-    if f.key == "rxp" then rxp = init end
-  end
-  local near = Settings.RegisterAddOnSetting(category, "TOOLTIPFOLD_NEAR", "near", db,
-    Settings.VarType.Number, NEAR_LABEL, DEFAULTS.near)
-  local options = Settings.CreateSliderOptions(0, NEAR_MAX, 1)
-  if MinimalSliderWithSteppersMixin then
-    options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-  end
-  local slider = Settings.CreateSlider(category, near, options, "RestedXP guide lines show only"
-    .. " for guides that start at most this many levels above yours. Shift shows all.")
-  if rxp and slider and slider.SetParentInitializer then
-    slider:SetParentInitializer(rxp, function() return db.rxp end)
+    Settings.CreateCheckbox(category, setting, f.tip)
   end
   if layout and CreateSettingsListSectionHeaderInitializer then
     layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Hidden lines",
@@ -753,9 +750,6 @@ SlashCmdList.MEIOTOOLTIPFOLD = function(msg)
     HideText(arg)
   elseif key == "unhide" then
     Unhide(arg)
-  elseif key == "near" and tonumber(arg) then
-    db.near = math.min(NEAR_MAX, math.max(0, math.floor(tonumber(arg))))
-    Print(("RestedXP guides up to %d levels above you"):format(db.near))
   elseif key == "reset" then
     wipe(db)
     for k, v in pairs(DEFAULTS) do db[k] = v end

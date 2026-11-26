@@ -1,4 +1,4 @@
--- MeioTooltipFold: folds other addons' tooltip lines into Blizzard's own.
+-- MeioTooltips: folds other addons' tooltip lines into Blizzard's own.
 --   Pawn: its score and upgrade % move beside the stat line, the scale line hides (Shift
 --     shows it)
 --   ForeverGear, GearQuest: their score, gain and rank join Pawn's beside the stat line
@@ -6,7 +6,7 @@
 --   Meionomics: its verdict rows move up under Sell Price
 --   Leveling BiS: its verdict as a plain line in place of its own block (adds lines, so it is
 --     a post-call, not a fold)
---   Hidden lines: any line containing a text you chose (/tooltipfold hide), Shift shows them
+--   Hidden lines: any line containing a text you chose (/meiotooltips hide), Shift shows them
 -- Runs on every Show: Blizzard shows the tooltip after all TooltipDataProcessor post-calls,
 -- and Pawn shows it again after adding its trainer line. Each fold must be idempotent: once
 -- applied, the line it looks for no longer matches.
@@ -577,8 +577,8 @@ local function Install()
   BlockOff()
 end
 ------------------------------------------------------------------------------ settings
--- Chat toggles and the Settings panel (Esc > Options > AddOns > MeioTooltipFold) share these
--- words and both write MeioTooltipFoldDB
+-- Chat toggles and the Settings panel (Esc > Options > AddOns > MeioTooltips) share these
+-- words and both write MeioTooltipsDB
 local FOLDS = {
   { key = "pawn", label = "Pawn on stat line",
     tip = "Pawn's score and upgrade % go on the right of the damage, armour or last stat line"
@@ -603,7 +603,7 @@ local FOLDS = {
 }
 
 local function Print(msg)
-  DEFAULT_CHAT_FRAME:AddMessage("|cffb090ffMeioTooltipFold:|r " .. msg)
+  DEFAULT_CHAT_FRAME:AddMessage("|cffb090ffMeioTooltips:|r " .. msg)
 end
 
 local function OnOff(on)
@@ -618,18 +618,18 @@ local function Help()
   Print("folds other addons' tooltip lines into Blizzard's own. Hold Shift for the detail.")
   local add = DEFAULT_CHAT_FRAME
   for _, f in ipairs(FOLDS) do
-    add:AddMessage(("  %s - %s (now %s)"):format(Cmd("/tooltipfold " .. f.key .. " on||off"),
+    add:AddMessage(("  %s - %s (now %s)"):format(Cmd("/meiotooltips " .. f.key .. " on||off"),
       f.label, OnOff(db[f.key])))
   end
   add:AddMessage(("  %s - hide lines containing a text; alone, over an item: its lines to"
     .. " pick from; %s shows one again; Shift shows them all"):format(
-    Cmd("/tooltipfold hide <text||n>"), Cmd("/tooltipfold unhide <n>")))
-  add:AddMessage(("  %s - default settings, nothing hidden"):format(Cmd("/tooltipfold reset")))
-  add:AddMessage(("  Settings: Esc > Options > AddOns > MeioTooltipFold (%s)")
-    :format(Cmd("/tooltipfold settings")))
+    Cmd("/meiotooltips hide <text||n>"), Cmd("/meiotooltips unhide <n>")))
+  add:AddMessage(("  %s - default settings, nothing hidden"):format(Cmd("/meiotooltips reset")))
+  add:AddMessage(("  Settings: Esc > Options > AddOns > MeioTooltips (%s)")
+    :format(Cmd("/meiotooltips settings")))
 end
 
--- the hovered tooltip's lines from the last /tooltipfold hide, for /tooltipfold hide <n>
+-- the hovered tooltip's lines from the last /meiotooltips hide, for /meiotooltips hide <n>
 local listed = {}
 
 local function ListTooltip()
@@ -641,7 +641,7 @@ local function ListTooltip()
     if text and text ~= "" then listed[#listed + 1] = text end
   end
   if #listed == 0 then return false end
-  Print(("this tooltip's lines (%s hides one):"):format(Cmd("/tooltipfold hide <n>")))
+  Print(("this tooltip's lines (%s hides one):"):format(Cmd("/meiotooltips hide <n>")))
   for i, text in ipairs(listed) do DEFAULT_CHAT_FRAME:AddMessage(("  %d. %s"):format(i, text)) end
   return true
 end
@@ -649,13 +649,13 @@ end
 local function ListHidden()
   if #db.hide == 0 then
     Print(("nothing hidden. Hover an item and type %s to pick a line."):format(
-      Cmd("/tooltipfold hide")))
+      Cmd("/meiotooltips hide")))
     return
   end
   Print("hiding lines that contain (Shift shows them):")
   for i, text in ipairs(db.hide) do DEFAULT_CHAT_FRAME:AddMessage(("  %d. %s"):format(i, text)) end
   DEFAULT_CHAT_FRAME:AddMessage(("  %s shows one again, %s all"):format(
-    Cmd("/tooltipfold unhide <n>"), Cmd("/tooltipfold unhide all")))
+    Cmd("/meiotooltips unhide <n>"), Cmd("/meiotooltips unhide all")))
 end
 
 local function HideText(arg)
@@ -670,7 +670,7 @@ local function HideText(arg)
   end
   table.insert(db.hide, text)
   Print(("hiding lines that contain \"%s\" (Shift shows them; %s to undo)"):format(text,
-    Cmd("/tooltipfold unhide " .. #db.hide)))
+    Cmd("/meiotooltips unhide " .. #db.hide)))
 end
 
 local function Unhide(arg)
@@ -697,27 +697,27 @@ local category
 local function Register()
   if category or not (Settings and Settings.RegisterVerticalLayoutCategory) then return end
   local layout
-  category, layout = Settings.RegisterVerticalLayoutCategory("MeioTooltipFold")
+  category, layout = Settings.RegisterVerticalLayoutCategory("MeioTooltips")
   if layout and CreateSettingsListSectionHeaderInitializer then
     layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Item tooltips",
       "Which addons' lines are folded into Blizzard's own. Hold Shift on a tooltip for the"
         .. " detail."))
   end
   for _, f in ipairs(FOLDS) do
-    local setting = Settings.RegisterAddOnSetting(category, "TOOLTIPFOLD_" .. f.key:upper(),
+    local setting = Settings.RegisterAddOnSetting(category, "MEIOTOOLTIPS_" .. f.key:upper(),
       f.key, db, Settings.VarType.Boolean, f.label, DEFAULTS[f.key])
     if f.key == "bis" then setting:SetValueChangedCallback(BlockOff) end
     Settings.CreateCheckbox(category, setting, f.tip)
   end
   if layout and CreateSettingsListSectionHeaderInitializer then
     layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Hidden lines",
-      "Hide any line you never read: hover an item, type /tooltipfold hide and pick its"
-        .. " number, or /tooltipfold hide <text> for every line containing that text. Shift"
+      "Hide any line you never read: hover an item, type /meiotooltips hide and pick its"
+        .. " number, or /meiotooltips hide <text> for every line containing that text. Shift"
         .. " shows them."))
   end
   if layout and CreateSettingsButtonInitializer then
     layout:AddInitializer(CreateSettingsButtonInitializer("Hidden lines", "List in chat",
-      ListHidden, "Every text hidden, with /tooltipfold unhide to show one again.", true))
+      ListHidden, "Every text hidden, with /meiotooltips unhide to show one again.", true))
   end
   Settings.RegisterAddOnCategory(category)
 end
@@ -729,13 +729,26 @@ local function OpenSettings()
     Help()
   end
 end
-MeioTooltipFold_OpenSettings = OpenSettings
+MeioTooltips_OpenSettings = OpenSettings
+
+-- MeioTooltipFold is this addon before the rename. With its folder still loaded both would
+-- fold the same lines and register the same commands, so this one stays idle and takes the old
+-- settings at logout (next time, without the old folder, they are ours). Its global isn't in
+-- our SavedVariables: our file loading second would overwrite the old addon's live table
+local OLD = "MeioTooltipFold"
+local function OldLoaded() return C_AddOns.IsAddOnLoaded(OLD) end
 
 local BY_KEY = {}
 for _, f in ipairs(FOLDS) do BY_KEY[f.key] = f end
 
-SLASH_MEIOTOOLTIPFOLD1 = "/tooltipfold"
-SlashCmdList.MEIOTOOLTIPFOLD = function(msg)
+SLASH_MEIOTOOLTIPS1 = "/meiotooltips"
+-- the old folder, loaded first (OptionalDeps), still owns /tooltipfold
+if not OldLoaded() then SLASH_MEIOTOOLTIPS2 = "/tooltipfold" end
+SlashCmdList.MEIOTOOLTIPS = function(msg)
+  if OldLoaded() then
+    Print(("idle while the old %s addon is enabled: disable it and /reload"):format(OLD))
+    return
+  end
   local key, arg = strtrim(msg or ""):lower():match("^(%S*)%s*(.-)$")
   local f = BY_KEY[key]
   if key == "" or key == "settings" or key == "options" then
@@ -763,8 +776,8 @@ SlashCmdList.MEIOTOOLTIPFOLD = function(msg)
 end
 
 local function Load()
-  MeioTooltipFoldDB = type(MeioTooltipFoldDB) == "table" and MeioTooltipFoldDB or {}
-  db = MeioTooltipFoldDB
+  MeioTooltipsDB = type(MeioTooltipsDB) == "table" and MeioTooltipsDB or {}
+  db = MeioTooltipsDB
   for k, v in pairs(DEFAULTS) do
     if db[k] == nil then db[k] = v end
   end
@@ -772,6 +785,12 @@ local function Load()
 end
 
 local function Login()
+  if OldLoaded() then
+    Print(("the old %s addon is still enabled, so MeioTooltips is idle: disable %s in the"
+      .. " AddOns list and /reload (MeioTooltips replaces it and keeps its settings)")
+      :format(OLD, OLD))
+    return
+  end
   Install()
   local ok, err = pcall(Register)
   if not ok then geterrorhandler()(err) end
@@ -780,9 +799,14 @@ end
 local f = CreateFrame("Frame")
 f:RegisterEvent("ADDON_LOADED")
 f:RegisterEvent("PLAYER_LOGIN")
+f:RegisterEvent("PLAYER_LOGOUT")
 f:SetScript("OnEvent", function(_, event, name)
   if event == "ADDON_LOADED" then
-    if name == "MeioTooltipFold" then Load() end
+    if name == "MeioTooltips" then Load() end
+  elseif event == "PLAYER_LOGOUT" then
+    if OldLoaded() and type(MeioTooltipFoldDB) == "table" then
+      MeioTooltipsDB = MeioTooltipFoldDB
+    end
   else
     Login()
   end

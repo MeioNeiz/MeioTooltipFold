@@ -1,0 +1,16 @@
+## Interface: 16001
+## Title: MeioTooltips
+## Notes: Folds Pawn, ForeverGear, GearQuest, RestedXP, Meionomics and Leveling BiS tooltip lines into Blizzard's own. Shift shows the detail. /meiotooltips
+## Version: 2.0.0
+## Author: MeioNeiz
+## X-Website: https://github.com/MeioNeiz/MeioTooltips
+## X-License: MIT
+## X-Curse-Project-ID: 1829281
+## X-Wago-ID: qGZAdaKd
+## Category: Meio
+## IconTexture: Interface\Icons\INV_Misc_Note_02
+## AddonCompartmentFunc: MeioTooltips_OpenSettings
+## OptionalDeps: MeioTooltipFold, PawnForever, Pawn, RXPGuides, Meionomics, ForeverLevelingBiS
+## SavedVariables: MeioTooltipsDB
+
+MeioTooltips.lua

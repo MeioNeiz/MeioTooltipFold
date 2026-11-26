@@ -1,4 +1,13 @@
-# MeioTooltipFold
+# Meio Tooltips
+
+## 2.0.0
+
+- Now called Meio Tooltips, folder MeioTooltips. The command is /meiotooltips; /tooltipfold
+  still works
+- Your settings and hidden lines come along when the old MeioTooltipFold folder loads once
+  beside the new one: Meio Tooltips waits, takes them over at logout, and says to disable the
+  old one. If your addon manager already removed the old folder, you start on the defaults
+  (every fold on, nothing hidden)
 
 ## 1.4.0
 

@@ -1,11 +1,11 @@
-# Meio Tooltip Fold
+# Meio Tooltips
 
 Short item tooltips: the lines other addons pile at the bottom move into Blizzard's own.
 
 For WoW Forever.
 
 ![A cloak's tooltip side by side: before, Pawn's line and RestedXP's guide header with four
-guide lines at the bottom; with MeioTooltipFold, four lines shorter, Pawn's score and upgrade
+guide lines at the bottom; with Meio Tooltips, four lines shorter, Pawn's score and upgrade
 beside the armour and the three guides in two lines](docs/before-after.png)
 
 ## What it does
@@ -18,27 +18,27 @@ Each addon's lines go where they belong, and only when that addon is installed.
 - **ForeverGear** and **GearQuest**: their score, gain and rank join Pawn's on the armour
   (or damage) line; their own lines and GearQuest's other-spec ranks hide
 - **Meionomics**: its price sits right under Sell Price
-- **Any line you never read**: hover an item, type `/tooltipfold hide` and pick its number,
-  or `/tooltipfold hide <text>`; it hides on every item
+- **Any line you never read**: hover an item, type `/meiotooltips hide` and pick its number,
+  or `/meiotooltips hide <text>`; it hides on every item
 - Hold **Shift** to see the addons' own lines again
 
 ![Sporid Cape tooltip: Pawn's 123.4 +12%, ForeverGear's 92 +20 and GearQuest's #3 72 +12
 on the right of the armour line](docs/gear.png)
 
-Settings: Esc > Options > AddOns > MeioTooltipFold, or `/tooltipfold`.
+Settings: Esc > Options > AddOns > MeioTooltips, or `/meiotooltips`.
 
 ## Slash commands
 
-- `/tooltipfold`: settings
-- `/tooltipfold help`: every command
-- `/tooltipfold pawn on`, `fg on`, `gq on`, `rxp on`, `meio on` (or `off`): fold that
+- `/meiotooltips`: settings
+- `/meiotooltips help`: every command
+- `/meiotooltips pawn on`, `fg on`, `gq on`, `rxp on`, `meio on` (or `off`): fold that
   addon's lines or leave them
-- `/tooltipfold hide`: over an item, its lines numbered; `hide <n>` or `hide <text>` hides
-  them; `/tooltipfold unhide <n|text|all>` shows them again
-- `/tooltipfold bis on|off`: Forever Leveling BiS's verdict and score as one line (needs a
+- `/meiotooltips hide`: over an item, its lines numbered; `hide <n>` or `hide <text>` hides
+  them; `/meiotooltips unhide <n|text|all>` shows them again
+- `/meiotooltips bis on|off`: Forever Leveling BiS's verdict and score as one line (needs a
   Leveling BiS version that lets other addons take over its block; the current one doesn't
   yet)
-- `/tooltipfold reset`: back to the defaults
+- `/meiotooltips reset`: back to the defaults
 
 ## Install
 
@@ -47,11 +47,11 @@ Use your addon manager (CurseForge, Wago), or unzip a GitHub release into
 
 ## Feedback
 
-Bugs and ideas: [GitHub issues](https://github.com/MeioNeiz/MeioTooltipFold/issues)
+Bugs, ideas or just a thumbs up: leave a comment on the CurseForge or Wago page you got it from. [GitHub issues](https://github.com/MeioNeiz/MeioTooltips/issues) are welcome too.
 
 ## More Meio addons
 
-[Meio Trainer Compare](https://www.curseforge.com/wow/addons/trainercompare) | [Meio Next Stop](https://www.curseforge.com/wow/addons/leavebutton) | [Meio Auto Rank](https://www.curseforge.com/wow/addons/meio-autorank) | [Meio Meter Hover](https://www.curseforge.com/wow/addons/meterhover) | [Meio Map](https://addons.wago.io/addons/meiomap) | [Meio Alts](https://addons.wago.io/addons/meioalts) | [Meio DPS](https://addons.wago.io/addons/meiodps) | [Meio Plates](https://addons.wago.io/addons/meioplates) | [Meio Hub](https://addons.wago.io/addons/meiohub) | [Meio Pets](https://addons.wago.io/addons/meiopets) | [Meio Stats](https://addons.wago.io/addons/meiostats) | [Meio Bags](https://addons.wago.io/addons/meiobags) | [Meio Fixes](https://addons.wago.io/addons/meiofixes) | [Meio Flight Times](https://addons.wago.io/addons/meioflighttimes) | [Meio Auto Run Turn](https://addons.wago.io/addons/meioautorunturn) | [Meio Mail](https://addons.wago.io/addons/meiomail) | [Meio QoL](https://addons.wago.io/addons/meioqol) | [Meio TSM Browse](https://addons.wago.io/addons/tsmbrowse) | [Meio Shards](https://addons.wago.io/addons/meioshards) | [Meionomics](https://www.curseforge.com/wow/addons/meionomics) | [Meio Spike Check](https://addons.wago.io/addons/meiospikecheck) | [Meio BiS Extras](https://addons.wago.io/addons/meiobisextras) | [Meio Buff Thanks](https://addons.wago.io/addons/meiobuffthanks) | [Meio Flare Fixes](https://addons.wago.io/addons/meioflarefixes) | [Meio Flare Questie](https://addons.wago.io/addons/meioflarequestie)
+[Meio Trainer Compare](https://www.curseforge.com/wow/addons/trainercompare) | [Meio Next Stop](https://www.curseforge.com/wow/addons/leavebutton) | [Meio Auto Rank](https://www.curseforge.com/wow/addons/meio-autorank) | [Meio Meter Hover](https://www.curseforge.com/wow/addons/meterhover) | [Meio Map](https://addons.wago.io/addons/meiomap) | [Meio Alts](https://addons.wago.io/addons/meioalts) | [Meio DPS](https://addons.wago.io/addons/meiodps) | [Meio Nameplates](https://addons.wago.io/addons/meioplates) | [Meio Hub](https://addons.wago.io/addons/meiohub) | [Meio Pets](https://addons.wago.io/addons/meiopets) | [Meio XP Meter](https://addons.wago.io/addons/meiostats) | [Meio Bags](https://addons.wago.io/addons/meiobags) | [Meio Fixes](https://addons.wago.io/addons/meiofixes) | [Meio Flight Times](https://addons.wago.io/addons/meioflighttimes) | [Meio Autorun](https://addons.wago.io/addons/meioautorunturn) | [Meio Mail](https://addons.wago.io/addons/meiomail) | [Meio QoL](https://addons.wago.io/addons/meioqol) | [Meio TSM Browse](https://addons.wago.io/addons/tsmbrowse) | [Meio Shards](https://addons.wago.io/addons/meioshards) | [Meionomics](https://www.curseforge.com/wow/addons/meionomics) | [Meio Spike Check](https://addons.wago.io/addons/meiospikecheck) | [Meio BiS Extras](https://addons.wago.io/addons/meiobisextras) | [Meio Buff Thanks](https://addons.wago.io/addons/meiobuffthanks) | [Meio Flare Fixes](https://addons.wago.io/addons/meioflarefixes) | [Meio Flare Questie](https://addons.wago.io/addons/meioflarequestie)
 
 ## Licence
 

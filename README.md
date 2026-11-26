@@ -35,9 +35,9 @@ Settings: Esc > Options > AddOns > MeioTooltips, or `/meiotooltips`.
   addon's lines or leave them
 - `/meiotooltips hide`: over an item, its lines numbered; `hide <n>` or `hide <text>` hides
   them; `/meiotooltips unhide <n|text|all>` shows them again
-- `/meiotooltips bis on|off`: Forever Leveling BiS's verdict and score as one line (needs a
-  Leveling BiS version that lets other addons take over its block; the current one doesn't
-  yet)
+- `/meiotooltips bis on|off`: Forever Leveling BiS's verdict and score folded in with the
+  other addons' lines (needs a Leveling BiS version that lets other addons take over its
+  block; the current one doesn't yet)
 - `/meiotooltips reset`: back to the defaults
 
 ## Install

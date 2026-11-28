@@ -1,5 +1,10 @@
 # Meio Tooltips
 
+## 2.0.1
+
+- Ready for Meio Sim (coming soon): for warlocks who have it, its Sim DPS line takes the
+  place of Leveling BiS's verdict line; other classes keep Leveling BiS's
+
 ## 2.0.0
 
 - Now called Meio Tooltips, folder MeioTooltips. The command is /meiotooltips; /tooltipfold

@@ -353,6 +353,7 @@ end
 -- (patch 64: API.GetVerdicts, API.blockOff). Plain: one line, the main spec's standing in
 -- My gear's tier colours (item quality colours), its gain or loss on the right.
 -- Shift: each spec's gain and score, and what it replaces. Its own window keeps its block.
+-- Where MeioSim answers (warlocks), its own line replaces this one.
 local BIS_ICON = "|TInterface\\AddOns\\ForeverLevelingBiS\\Media\\Icon:0|t "
 local BIS_UPGRADE = 0.05 -- FLBiS's UPGRADE: the least gain it calls one
 local BIS, EPIC, RARE, POOR = { 255, 128, 0 }, { 163, 53, 238 }, { 0, 112, 221 }, { 157, 157, 157 }
@@ -438,6 +439,10 @@ local function AddBis(tip)
   if tip:IsForbidden() or OwnWindow(tip:GetOwner()) then return end
   local link = DisplayedLink(tip)
   if not link then return end
+  -- MeioSim's Sim DPS line (rank on Shift) is the verdict where it answers; FLBiS's line
+  -- stays for other classes and without MeioSim. FLBiS's own block stays off either way
+  local sim = MeioSim and MeioSim.API
+  if sim and sim.ShowsTooltip and sim.ShowsTooltip(link) then return end
   local held = api.ShowsWorn and api.ShowsWorn(tip, link)
   local main, offs = api.GetVerdicts(link, held)
   if not main or main.cant then return end
